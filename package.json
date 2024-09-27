@@ -1,8 +1,8 @@
 {
   "name": "transactions-api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "This project is a backend that allows users to request transactions, which must be validated by an admin before completion.",
+  "author": "Cleider Herrera <cleider87@gmail.com>",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
