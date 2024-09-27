@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { DomainExceptionFilter } from './shared/infrastructure/filters/domain-exception.filter';
+import { AppModule } from '@transactions-api/app.module';
+import { DomainExceptionFilter } from '@transactions-api/shared/infrastructure/filters/domain-exception.filter';
 import { ConfigService } from '@nestjs/config';
 import { LoggingUtil } from '@transactions-api/shared/utils/logging.util';
 

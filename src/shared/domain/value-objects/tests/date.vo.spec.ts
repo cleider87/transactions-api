@@ -1,4 +1,4 @@
-import { DateVO } from '../date.vo';
+import { DateVO } from '@transactions-api/shared/domain/value-objects/date.vo';
 
 describe('DateVO', () => {
   it('should create an instance with a valid Date object', () => {

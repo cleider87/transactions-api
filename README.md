@@ -28,7 +28,6 @@ src/
 ├── auth/                # Authentication module
 ├── transactions/        # Transactions module
 ├── shared/              # Shared components
-└── config/              # Configuration files
 ```
 
 ## Steps to Run Locally
