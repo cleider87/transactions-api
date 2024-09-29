@@ -1,29 +1,24 @@
-import * as dotenv from 'dotenv';
-import { join } from 'path';
-
-// Load environment variables from the .env file
-dotenv.config({ path: join(__dirname, '../../.env') });
-
 export default () => ({
-  // App-related configurations
-  appName: process.env.APP_NAME || 'Transactions API',
-  port: parseInt(process.env.APP_PORT, 10) || 3000,
-  environment: process.env.NODE_ENV || 'development',
-
-  // Database configurations
-  database: {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT, 10) || 5432,
-    username: process.env.DB_USERNAME || 'root',
-    password: process.env.DB_PASSWORD || 'password',
-    name: process.env.DB_NAME || 'transactions_db',
+  app: {
+    name: process.env.APP_NAME || 'Transactions API',
+    port: parseInt(process.env.APP_PORT, 10) || 3000,
+    environment: process.env.NODE_ENV || 'development',
+    apiPrefix: process.env.API_PREFIX || 'api',
+    logLevel: process.env.LOG_LEVEL || 'debug',
   },
-
-  // JWT and security configurations
-  jwtSecret: process.env.JWT_SECRET || 'defaultSecret',
-  jwtExpirationTime: process.env.JWT_EXPIRATION_TIME || '3600s',
-
-  // Other configurations
-  apiPrefix: process.env.API_PREFIX || 'api',
-  logLevel: process.env.LOG_LEVEL || 'debug',
+  database: {
+    type: process.env.DB_TYPE,
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT, 10),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    name: process.env.DB_NAME || 'transactions_db',
+    synchronize: process.env.TYPEORM_SYNC === 'true',
+    dropSchema: process.env.TYPEORM_DROP_SCHEMA === 'true',
+    logging: process.env.TYPEORM_LOGGING === 'true',
+  },
+  security: {
+    jwtSecret: process.env.JWT_SECRET || 'defaultSecret',
+    jwtExpirationTime: process.env.JWT_EXPIRATION_TIME || '3600s',
+  },
 });

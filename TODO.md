@@ -1,1 +1,2 @@
-Arreglar eslint
+Fix eslint
+Improve exceptions / registros duplicados

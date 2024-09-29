@@ -5,7 +5,6 @@ export class LoggingUtil {
   private static logger = new Logger('AppLogger');
   private static logLevel: string;
 
-  // Initialize the logging utility with ConfigService
   public static initialize(configService: ConfigService) {
     this.logLevel = configService.get<string>('logLevel') || 'debug';
     this.logger.log(`Logging level set to: ${this.logLevel}`);
