@@ -154,4 +154,52 @@ describe('AuthController (e2e)', () => {
       expect(response.body.message).toContain('Password is required');
     });
   });
+  describe('POST /auth/verify', () => {
+    let validToken: string;
+    let invalidToken: string;
+
+    beforeAll(async () => {
+      const loginResponse = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          username: 'testuser3',
+          password: 'testpassword3',
+        });
+      validToken = loginResponse.body.accessToken;
+
+      invalidToken = 'invalid-token-string';
+    });
+
+    it('should verify a valid token', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/verify')
+        .send({ token: validToken })
+        .expect(200);
+
+      expect(response.body).toHaveProperty('userId');
+      expect(response.body.userId).toHaveLength(36);
+      expect(response.body).toHaveProperty('roles');
+      expect(response.body.roles).toHaveLength(1);
+    });
+
+    it('should fail to verify an invalid token', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/verify')
+        .send({ token: invalidToken })
+        .expect(401);
+
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toEqual('Invalid token');
+    });
+
+    it('should fail if token is not provided', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/verify')
+        .send({})
+        .expect(400);
+
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toContain('Token is required');
+    });
+  });
 });

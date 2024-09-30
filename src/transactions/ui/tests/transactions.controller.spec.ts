@@ -6,6 +6,7 @@ import { ApproveTransactionInput } from '@transactions-api/transactions/applicat
 import { RejectTransactionInput } from '@transactions-api/transactions/application/dto/reject-transaction.dto';
 import { AmountVO } from '@transactions-api/shared/domain/value-objects/amount.vo';
 import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
+import { HttpModule } from '@nestjs/axios';
 
 describe('TransactionsController', () => {
   let controller: TransactionsController;
@@ -19,6 +20,7 @@ describe('TransactionsController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [HttpModule],
       controllers: [TransactionsController],
       providers: [
         {
