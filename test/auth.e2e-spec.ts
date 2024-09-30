@@ -1,8 +1,8 @@
-import { PostgreSqlContainer } from '@testcontainers/postgresql';
-import { AppModule } from '../src/app.module';
-import * as request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { PostgreSqlContainer } from '@testcontainers/postgresql';
+import { AppModule } from '@transactions-api/app.module';
+import * as request from 'supertest';
 
 describe('AuthController (e2e)', () => {
   jest.setTimeout(60000);

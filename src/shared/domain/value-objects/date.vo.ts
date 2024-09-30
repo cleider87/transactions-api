@@ -1,3 +1,5 @@
+import { DomainException } from '@transactions-api/shared/domain/exceptions/domain.exception';
+
 export class DateVO {
   private readonly value: Date;
 
@@ -7,7 +9,7 @@ export class DateVO {
 
   private validate(value: Date): Date {
     if (isNaN(value.getTime())) {
-      throw new Error(`Invalid date: ${value}`);
+      throw new DomainException(`Invalid date: ${value}`);
     }
     return value;
   }
