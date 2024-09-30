@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 export class LoggingUtil {
-  private static logger = new Logger('AppLogger');
+  private static readonly logger = new Logger('AppLogger');
   private static logLevel: string;
 
   public static initialize(configService: ConfigService) {

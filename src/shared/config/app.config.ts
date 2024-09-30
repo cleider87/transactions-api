@@ -18,6 +18,7 @@ export default () => ({
     logging: process.env.TYPEORM_LOGGING === 'true',
   },
   security: {
+    host: process.env.AUTHENTICATION_SERVER,
     jwtSecret: process.env.JWT_SECRET || 'defaultSecret',
     jwtExpirationTime: process.env.JWT_EXPIRATION_TIME || '3600s',
   },

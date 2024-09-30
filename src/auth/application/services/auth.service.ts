@@ -6,12 +6,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserEntity } from '@transactions-api/auth/domain/entities/user.entity';
-import { UserRepository } from '@transactions-api/auth/domain/repositories/user.repository';
-import { UserCredentialsVO } from '@transactions-api/auth/domain/value-objects/user-credentials.vo';
-import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
-import { LoggingUtil } from '@transactions-api/shared/utils/logging.util';
-import * as bcrypt from 'bcrypt';
 import {
   LoginInput,
   LoginOutput,
@@ -20,6 +14,13 @@ import {
   RegisterInput,
   RegisterOutput,
 } from '@transactions-api/auth/application/dto/register.dto';
+import { VerifyTokenOutput } from '@transactions-api/auth/application/dto/verify-token.dto';
+import { UserEntity } from '@transactions-api/auth/domain/entities/user.entity';
+import { UserRepository } from '@transactions-api/auth/domain/repositories/user.repository';
+import { UserCredentialsVO } from '@transactions-api/auth/domain/value-objects/user-credentials.vo';
+import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
+import { LoggingUtil } from '@transactions-api/shared/utils/logging.util';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -70,6 +71,7 @@ export class AuthService {
       const payload = {
         username: user.getCredentials().getUsername(),
         sub: user.getId().getValue(),
+        roles: user.getRoles(),
       };
       return {
         accessToken: this.jwtService.sign(payload),
@@ -78,6 +80,24 @@ export class AuthService {
     } catch (error) {
       LoggingUtil.error('Error signing token:', error);
       throw new Error('Could not generate token');
+    }
+  }
+
+  async verifyToken(token: string): Promise<VerifyTokenOutput> {
+    try {
+      const payload = this.jwtService.verify(token);
+      return {
+        userId: payload.sub,
+        roles: payload.roles,
+      };
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Token has expired');
+      } else if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid token');
+      } else {
+        throw new UnauthorizedException('Could not verify token');
+      }
     }
   }
 

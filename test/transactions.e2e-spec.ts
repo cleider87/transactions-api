@@ -5,6 +5,9 @@ import { AppModule } from '@transactions-api/app.module';
 import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
 import * as request from 'supertest';
 
+const mockAuthenticationUrl = 'http://localhost:3000/api/auth';
+import * as nock from 'nock';
+
 describe('TransactionController (e2e)', () => {
   jest.setTimeout(60000);
   let app: INestApplication;
@@ -25,6 +28,7 @@ describe('TransactionController (e2e)', () => {
     process.env.DB_USERNAME = 'test';
     process.env.DB_PASSWORD = 'test';
     process.env.DB_NAME = 'test';
+    process.env.AUTHENTICATION_SERVER = mockAuthenticationUrl;
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -50,10 +54,15 @@ describe('TransactionController (e2e)', () => {
   afterAll(async () => {
     await app.close();
     await postgresContainer.stop();
+    nock.cleanAll();
   });
 
   describe('POST /transactions/request', () => {
     it('should request a new transaction', async () => {
+      nock(mockAuthenticationUrl)
+        .post('/verify')
+        .reply(200, { userId: 'testuser', roles: ['user'] });
+
       const payload = {
         fromAccountId: fromAccountId.getValue(),
         toAccountId: toAccountId.getValue(),
@@ -75,12 +84,16 @@ describe('TransactionController (e2e)', () => {
     });
 
     it('should fail to request a transaction if amount is invalid', async () => {
+      nock(mockAuthenticationUrl)
+        .post('/verify')
+        .reply(200, { userId: 'testuser', roles: ['user'] });
+
       const response = await request(app.getHttpServer())
         .post('/transactions/request')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
-          fromAccountId: fromAccountId,
-          toAccountId: toAccountId,
+          fromAccountId: fromAccountId.getValue(),
+          toAccountId: toAccountId.getValue(),
           amount: -50.0,
           description: 'Invalid Transaction',
         })
@@ -91,100 +104,132 @@ describe('TransactionController (e2e)', () => {
         'Amount must be greater than zero',
       );
     });
+  });
+  describe('PUT /transactions/:id/approve', () => {
+    nock(mockAuthenticationUrl)
+      .post('/verify')
+      .once()
+      .reply(200, { userId: 'testuser', roles: ['user'] });
+    nock(mockAuthenticationUrl)
+      .post('/verify')
+      .twice()
+      .reply(200, { userId: 'adminUser', roles: ['admin'] });
 
-    describe('POST /transactions/:id/approve', () => {
-      it('should approve a transaction', async () => {
-        await request(app.getHttpServer())
-          .post('/transactions/request')
-          .set('Authorization', `Bearer ${accessToken}`)
-          .send({
-            fromAccountId: fromAccountId.getValue(),
-            toAccountId: toAccountId.getValue(),
-            amount: 100.0,
-            description: 'Test Transaction',
-          });
+    it('should approve a transaction', async () => {
+      nock(mockAuthenticationUrl)
+        .post('/verify')
+        .once()
+        .reply(200, { userId: 'testuser', roles: ['user'] });
+      nock(mockAuthenticationUrl)
+        .post('/verify')
+        .twice()
+        .reply(200, { userId: 'adminUser', roles: ['admin'] });
 
-        const adminAccessToken = await request(app.getHttpServer())
-          .post('/auth/login')
-          .send({ username: 'adminUser', password: 'adminPassword' })
-          .then((res) => res.body.accessToken);
+      await request(app.getHttpServer())
+        .post('/transactions/request')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          fromAccountId: fromAccountId.getValue(),
+          toAccountId: toAccountId.getValue(),
+          amount: 100.0,
+          description: 'Test Transaction',
+        });
 
-        const response = await request(app.getHttpServer())
-          .put(`/transactions/${transactionId}/approve`)
-          .set('Authorization', `Bearer ${adminAccessToken}`)
-          .send({ adminId: adminId.getValue() })
-          .expect(200);
+      const adminAccessToken = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'adminUser', password: 'adminPassword' })
+        .then((res) => res.body.accessToken);
 
-        expect(response.body).toHaveProperty('status');
-        expect(response.body.status).toEqual('APPROVED');
-      });
+      const response = await request(app.getHttpServer())
+        .put(`/transactions/${transactionId}/approve`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
+        .send({ adminId: adminId.getValue() })
+        .expect(200);
 
-      it('should fail to approve a transaction that does not exist', async () => {
-        const adminAccessToken = await request(app.getHttpServer())
-          .post('/auth/login')
-          .send({ username: 'adminUser', password: 'adminPassword' })
-          .then((res) => res.body.accessToken);
-
-        const response = await request(app.getHttpServer())
-          .put('/transactions/00000000-0000-0000-0000-000000000000/approve')
-          .set('Authorization', `Bearer ${adminAccessToken}`)
-          .send({ adminId: adminId.getValue() })
-          .expect(404);
-        expect(response.body).toHaveProperty('message');
-        expect(response.body.message).toEqual(
-          'Transaction with id 00000000-0000-0000-0000-000000000000 not found',
-        );
-      });
+      expect(response.body).toHaveProperty('status');
+      expect(response.body.status).toEqual('APPROVED');
     });
 
-    describe('POST /transactions/:id/reject', () => {
-      it('should reject a transaction', async () => {
-        await request(app.getHttpServer())
-          .post('/transactions/request')
-          .set('Authorization', `Bearer ${accessToken}`)
-          .send({
-            fromAccountId: fromAccountId.getValue(),
-            toAccountId: toAccountId.getValue(),
-            amount: 100.0,
-            description: 'Test Transaction',
-          });
+    it('should fail to approve a transaction that does not exist', async () => {
+      nock(mockAuthenticationUrl)
+        .post('/verify')
+        .reply(200, { userId: 'adminUser', roles: ['admin'] });
+      const adminAccessToken = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'adminUser', password: 'adminPassword' })
+        .then((res) => res.body.accessToken);
 
-        await request(app.getHttpServer())
-          .post('/auth/register')
-          .send({ username: 'adminUser', password: 'adminPassword' });
+      const response = await request(app.getHttpServer())
+        .put('/transactions/00000000-0000-0000-0000-000000000000/approve')
+        .set('Authorization', `Bearer ${adminAccessToken}`)
+        .send({ adminId: adminId.getValue() })
+        .expect(404);
 
-        const adminAccessToken = await request(app.getHttpServer())
-          .post('/auth/login')
-          .send({ username: 'adminUser', password: 'adminPassword' })
-          .then((res) => res.body.accessToken);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toEqual(
+        'Transaction with id 00000000-0000-0000-0000-000000000000 not found',
+      );
+    });
+  });
 
-        const response = await request(app.getHttpServer())
-          .put(`/transactions/${transactionId}/reject`)
-          .set('Authorization', `Bearer ${adminAccessToken}`)
-          .send({ adminId: adminId.getValue() })
-          .expect(200);
+  describe('PUT /transactions/:id/reject', () => {
+    nock(mockAuthenticationUrl)
+      .post('/verify')
+      .once()
+      .reply(200, { userId: 'testuser', roles: ['user'] });
+    nock(mockAuthenticationUrl)
+      .post('/verify')
+      .twice()
+      .reply(200, { userId: 'adminUser', roles: ['admin'] });
+    it('should reject a transaction', async () => {
+      await request(app.getHttpServer())
+        .post('/transactions/request')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          fromAccountId: fromAccountId.getValue(),
+          toAccountId: toAccountId.getValue(),
+          amount: 100.0,
+          description: 'Test Transaction',
+        });
 
-        expect(response.body).toHaveProperty('status');
-        expect(response.body.status).toEqual('REJECTED');
-      });
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ username: 'adminUser', password: 'adminPassword' });
 
-      it('should fail to reject a transaction that does not exist', async () => {
-        const adminAccessToken = await request(app.getHttpServer())
-          .post('/auth/login')
-          .send({ username: 'adminUser', password: 'adminPassword' })
-          .then((res) => res.body.accessToken);
+      const adminAccessToken = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'adminUser', password: 'adminPassword' })
+        .then((res) => res.body.accessToken);
 
-        const response = await request(app.getHttpServer())
-          .put('/transactions/00000000-0000-0000-0000-000000000000/reject')
-          .set('Authorization', `Bearer ${adminAccessToken}`)
-          .send({ adminId: adminId.getValue() })
-          .expect(404);
+      const response = await request(app.getHttpServer())
+        .put(`/transactions/${transactionId}/reject`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
+        .send({ adminId: adminId.getValue() })
+        .expect(200);
 
-        expect(response.body).toHaveProperty('message');
-        expect(response.body.message).toEqual(
-          'Transaction with id 00000000-0000-0000-0000-000000000000 not found',
-        );
-      });
+      expect(response.body).toHaveProperty('status');
+      expect(response.body.status).toEqual('REJECTED');
+    });
+
+    it('should fail to reject a transaction that does not exist', async () => {
+      nock(mockAuthenticationUrl)
+        .post('/verify')
+        .reply(200, { userId: 'adminUser', roles: ['admin'] });
+      const adminAccessToken = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'adminUser', password: 'adminPassword' })
+        .then((res) => res.body.accessToken);
+
+      const response = await request(app.getHttpServer())
+        .put('/transactions/00000000-0000-0000-0000-000000000000/reject')
+        .set('Authorization', `Bearer ${adminAccessToken}`)
+        .send({ adminId: adminId.getValue() })
+        .expect(404);
+
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toEqual(
+        'Transaction with id 00000000-0000-0000-0000-000000000000 not found',
+      );
     });
   });
 });

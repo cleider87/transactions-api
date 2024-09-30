@@ -1,9 +1,10 @@
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@transactions-api/app.module';
 import { DomainExceptionFilter } from '@transactions-api/shared/infrastructure/filters/domain-exception.filter';
-import { ConfigService } from '@nestjs/config';
 import { LoggingUtil } from '@transactions-api/shared/utils/logging.util';
-import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +23,7 @@ async function bootstrap() {
   );
 
   app.setGlobalPrefix(apiPrefix || 'api');
+  app.use(helmet());
   app.enableCors();
   app.useGlobalFilters(new DomainExceptionFilter());
   await app.listen(port);

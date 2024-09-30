@@ -1,21 +1,25 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
   HttpCode,
   HttpStatus,
+  Post,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { AuthService } from '@transactions-api/auth/application/services/auth.service';
+import {
+  LoginInput,
+  LoginOutput,
+} from '@transactions-api/auth/application/dto/login.dto';
 import {
   RegisterInput,
   RegisterOutput,
 } from '@transactions-api/auth/application/dto/register.dto';
 import {
-  LoginInput,
-  LoginOutput,
-} from '@transactions-api/auth//application/dto/login.dto';
+  VerifyTokenInput,
+  VerifyTokenOutput,
+} from '@transactions-api/auth/application/dto/verify-token.dto';
+import { AuthService } from '@transactions-api/auth/application/services/auth.service';
 
 @Controller('auth')
 export class AuthController {
@@ -36,5 +40,14 @@ export class AuthController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async login(@Body() loginInput: LoginInput): Promise<LoginOutput> {
     return this.authService.login(loginInput);
+  }
+
+  @Post('verify')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async verifyToken(
+    @Body() verifyTokenInput: VerifyTokenInput,
+  ): Promise<VerifyTokenOutput> {
+    return this.authService.verifyToken(verifyTokenInput.token);
   }
 }
