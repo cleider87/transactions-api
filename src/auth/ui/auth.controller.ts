@@ -8,8 +8,14 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from '@transactions-api/auth/application/services/auth.service';
-import { RegisterInput, RegisterOutput } from '../application/dto/register.dto';
-import { LoginInput, LoginOutput } from '../application/dto/login.dto';
+import {
+  RegisterInput,
+  RegisterOutput,
+} from '@transactions-api/auth/application/dto/register.dto';
+import {
+  LoginInput,
+  LoginOutput,
+} from '@transactions-api/auth//application/dto/login.dto';
 
 @Controller('auth')
 export class AuthController {

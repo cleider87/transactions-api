@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '@transactions-api/auth/auth.module';
 import appConfig from '@transactions-api/shared/config/app.config';
+import { TransactionsModule } from '@transactions-api/transactions/transactions.module';
 import { join } from 'path';
 
 @Module({
@@ -33,6 +34,7 @@ import { join } from 'path';
       }),
     }),
     AuthModule,
+    TransactionsModule,
   ],
 })
 export class AppModule {}

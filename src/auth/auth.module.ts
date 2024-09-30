@@ -4,9 +4,9 @@ import { AuthController } from '@transactions-api/auth/ui/auth.controller';
 import { UserEntityORM } from '@transactions-api/auth/infrastructure/orm/user.entity.orm';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthService } from './application/services/auth.service';
-import { UserRepositoryImpl } from './infrastructure/repositories/user-repository.impl';
-import { JwtStrategy } from './application/strategies/jwt.strategy';
+import { AuthService } from '@transactions-api/auth/application/services/auth.service';
+import { UserRepositoryImpl } from '@transactions-api/auth/infrastructure/repositories/user-repository.impl';
+import { JwtStrategy } from '@transactions-api/auth/application/strategies/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 
 const repositories = TypeOrmModule.forFeature([UserEntityORM]);

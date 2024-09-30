@@ -12,8 +12,14 @@ import { UserCredentialsVO } from '@transactions-api/auth/domain/value-objects/u
 import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
 import { LoggingUtil } from '@transactions-api/shared/utils/logging.util';
 import * as bcrypt from 'bcrypt';
-import { LoginInput, LoginOutput } from '../dto/login.dto';
-import { RegisterInput, RegisterOutput } from '../dto/register.dto';
+import {
+  LoginInput,
+  LoginOutput,
+} from '@transactions-api/auth/application/dto/login.dto';
+import {
+  RegisterInput,
+  RegisterOutput,
+} from '@transactions-api/auth/application/dto/register.dto';
 
 @Injectable()
 export class AuthService {
