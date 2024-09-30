@@ -1,5 +1,5 @@
-import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { LoggingUtil } from '@transactions-api/shared/utils/logging.util';
 
 describe('LoggingUtil', () => {

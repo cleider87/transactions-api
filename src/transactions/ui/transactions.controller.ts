@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { AmountVO } from '@transactions-api/shared/domain/value-objects/amount.vo';
 import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
+import { Role } from '@transactions-api/shared/domain/value-objects/roles.vo';
 import { AuthGuard } from '@transactions-api/shared/infrastructure/guards/auth.guard';
 import { Roles } from '@transactions-api/shared/infrastructure/guards/roles.guard';
 import { ApproveTransactionInput } from '@transactions-api/transactions/application/dto/approve-transaction.dto';
@@ -25,7 +26,7 @@ export class TransactionsController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Post('request')
-  @Roles(['user'])
+  @Roles(Role.User)
   @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(HttpStatus.CREATED)
   async requestTransaction(
@@ -42,7 +43,7 @@ export class TransactionsController {
   }
 
   @Put(':id/approve')
-  @Roles(['admin'])
+  @Roles(Role.Admin)
   @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(HttpStatus.OK)
   async approveTransaction(
@@ -56,7 +57,7 @@ export class TransactionsController {
   }
 
   @Put(':id/reject')
-  @Roles(['admin'])
+  @Roles(Role.Admin)
   @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(HttpStatus.OK)
   async rejectTransaction(

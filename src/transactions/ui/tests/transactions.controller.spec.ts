@@ -1,12 +1,12 @@
+import { HttpModule } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TransactionsController } from '@transactions-api/transactions/ui/transactions.controller';
-import { TransactionService } from '@transactions-api/transactions/application/services/transaction.service';
-import { TransactionRequestInput } from '@transactions-api/transactions/application/dto/transaction-request.dto';
-import { ApproveTransactionInput } from '@transactions-api/transactions/application/dto/approve-transaction.dto';
-import { RejectTransactionInput } from '@transactions-api/transactions/application/dto/reject-transaction.dto';
 import { AmountVO } from '@transactions-api/shared/domain/value-objects/amount.vo';
 import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
-import { HttpModule } from '@nestjs/axios';
+import { ApproveTransactionInput } from '@transactions-api/transactions/application/dto/approve-transaction.dto';
+import { RejectTransactionInput } from '@transactions-api/transactions/application/dto/reject-transaction.dto';
+import { TransactionRequestInput } from '@transactions-api/transactions/application/dto/transaction-request.dto';
+import { TransactionService } from '@transactions-api/transactions/application/services/transaction.service';
+import { TransactionsController } from '@transactions-api/transactions/ui/transactions.controller';
 
 describe('TransactionsController', () => {
   let controller: TransactionsController;
