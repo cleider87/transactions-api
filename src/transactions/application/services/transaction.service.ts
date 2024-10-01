@@ -1,8 +1,13 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AmountVO } from '@transactions-api/shared/domain/value-objects/amount.vo';
 import { DateVO } from '@transactions-api/shared/domain/value-objects/date.vo';
 import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
-import { TransactionRequestOutput } from '@transactions-api/transactions/application/dto/transaction-request.dto';
+import { TransactionOutput } from '@transactions-api/transactions/application/dto/transaction-output.dto';
 import { TransactionEntity } from '@transactions-api/transactions/domain/entities/transaction.entity';
 import { TransactionStatus } from '@transactions-api/transactions/domain/value-objects/transaction-status.vo';
 import { TransactionRepositoryImpl } from '@transactions-api/transactions/infrastructure/repositories/transaction.repository.impl';
@@ -19,7 +24,7 @@ export class TransactionService {
     toAccountId: IdVO,
     amount: AmountVO,
     description: string,
-  ): Promise<TransactionRequestOutput> {
+  ): Promise<TransactionOutput> {
     const transactionRequest = new TransactionEntity(
       this.generateId(),
       fromAccountId,
@@ -49,7 +54,7 @@ export class TransactionService {
   async approveTransaction(
     transactionId: IdVO,
     adminId: IdVO,
-  ): Promise<TransactionRequestOutput> {
+  ): Promise<TransactionOutput> {
     const transaction = await this.transactionRepository.findById(
       transactionId.getValue(),
     );
@@ -57,6 +62,12 @@ export class TransactionService {
     if (!transaction) {
       throw new NotFoundException(
         `Transaction with id ${transactionId.getValue()} not found`,
+      );
+    }
+
+    if (transaction.getStatus() != TransactionStatus.PENDING) {
+      throw new ConflictException(
+        `Transaction with id ${transactionId.getValue()} is already ${transaction.getStatus()}`,
       );
     }
 
@@ -81,7 +92,7 @@ export class TransactionService {
   async rejectTransaction(
     transactionId: IdVO,
     adminId: IdVO,
-  ): Promise<TransactionEntity> {
+  ): Promise<TransactionOutput> {
     const transaction = await this.transactionRepository.findById(
       transactionId.getValue(),
     );
@@ -92,9 +103,25 @@ export class TransactionService {
       );
     }
 
+    if (transaction.getStatus() != TransactionStatus.PENDING) {
+      throw new ConflictException(
+        `Transaction with id ${transactionId.getValue()} is already ${transaction.getStatus()}`,
+      );
+    }
+
     transaction.reject(adminId);
 
-    return await this.transactionRepository.save(transaction);
+    return {
+      id: transaction.getId().getValue(),
+      amount: transaction.getAmount().getValue(),
+      description: transaction.getDescription(),
+      fromAccountId: transaction.getFromAccountId().getValue(),
+      toAccountId: transaction.getToAccountId().getValue(),
+      status: transaction.getStatus(),
+      createdAt: transaction.getCreatedAt().getValue(),
+      validatedBy: transaction.getValidatedBy()?.getValue(),
+      validatedAt: transaction.getValidatedAt()?.getValue(),
+    };
   }
 
   private generateId(): IdVO {

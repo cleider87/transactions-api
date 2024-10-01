@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from '@transactions-api/app.module';
 import { DomainExceptionFilter } from '@transactions-api/shared/infrastructure/filters/domain-exception.filter';
 import { LoggingUtil } from '@transactions-api/shared/utils/logging.util';
@@ -23,6 +24,15 @@ async function bootstrap() {
   );
 
   app.setGlobalPrefix(apiPrefix || 'api');
+
+  const config = new DocumentBuilder()
+    .setTitle(appName)
+    .setVersion('1.0')
+    .addTag('transactions-api')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
   app.use(helmet());
   app.enableCors();
   app.useGlobalFilters(new DomainExceptionFilter());

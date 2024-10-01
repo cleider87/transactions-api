@@ -1,5 +1,5 @@
 import { validate } from 'class-validator';
-import { TransactionRequestInput } from '@transactions-api/transactions/application/dto/transaction-request.dto';
+import { TransactionRequestInput } from '@transactions-api/transactions/application/dto/transaction-request-input.dto';
 
 describe('TransactionRequestInput', () => {
   it('should succeed with valid data', async () => {

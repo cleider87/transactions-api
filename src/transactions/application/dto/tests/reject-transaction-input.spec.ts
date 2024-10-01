@@ -1,5 +1,5 @@
 import { validate } from 'class-validator';
-import { RejectTransactionInput } from '@transactions-api/transactions/application/dto/reject-transaction.dto';
+import { RejectTransactionInput } from '@transactions-api/transactions/application/dto/reject-transaction-input.dto';
 
 describe('RejectTransactionInput', () => {
   it('should succeed with valid data', async () => {

@@ -1,18 +1,17 @@
-import { RejectTransactionOutput } from '@transactions-api/transactions/application/dto/reject-transaction.dto';
+import { TransactionOutput } from '@transactions-api/transactions/application/dto/transaction-output.dto';
 
-describe('RejectTransactionOutput', () => {
+describe('TransactionOutput', () => {
   it('should match the output structure', () => {
-    const output: RejectTransactionOutput = {
+    const output: TransactionOutput = {
       id: '123e4567-e89b-12d3-a456-426614174000',
-      fromAccountId: 'account-123',
-      toAccountId: 'account-456',
+      fromAccountId: '123e4567-e89b-12d3-0000-426614174000',
+      toAccountId: '123e4567-e89b-12d3-a456-426614174445',
       amount: 100,
-      description: 'Payment rejected',
-      status: 'rejected',
+      description: 'Transfer',
+      status: 'pending',
       createdAt: new Date(),
-      validatedBy: 'admin-123',
       validatedAt: new Date(),
-      completedAt: new Date(),
+      validatedBy: '123e4567-e89b-12d3-a456-426614174005',
     };
 
     expect(output).toHaveProperty('id');
@@ -22,8 +21,7 @@ describe('RejectTransactionOutput', () => {
     expect(output).toHaveProperty('description');
     expect(output).toHaveProperty('status');
     expect(output).toHaveProperty('createdAt');
-    expect(output).toHaveProperty('validatedBy');
     expect(output).toHaveProperty('validatedAt');
-    expect(output).toHaveProperty('completedAt');
+    expect(output).toHaveProperty('validatedBy');
   });
 });
