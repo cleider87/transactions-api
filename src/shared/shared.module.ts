@@ -5,16 +5,20 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import appConfig from '@transactions-api/shared/config/app.config';
 import { AuthGuard } from '@transactions-api/shared/infrastructure/guards/auth.guard';
 import { join } from 'path';
+import { LoggingUtil } from './utils/logging.util';
 
+const envFilePath = join(
+  __dirname,
+  `../../../.env.${process.env.NODE_ENV || 'development'}`,
+);
+
+LoggingUtil.log('--------> ' + envFilePath);
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig],
-      envFilePath: join(
-        __dirname,
-        `../../../.env.${process.env.NODE_ENV || 'development'}`,
-      ),
+      envFilePath,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
