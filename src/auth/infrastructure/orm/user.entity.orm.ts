@@ -1,5 +1,5 @@
-import { UserRole } from '@transactions-api/auth/domain/entities/user.entity';
 import { UserCredentialsVO } from '@transactions-api/auth/domain/value-objects/user-credentials.vo';
+import { Role } from '@transactions-api/shared/domain/value-objects/roles.vo';
 import { BaseOrmEntity } from '@transactions-api/shared/infrastructure/orm/base.entity';
 import { Column, Entity } from 'typeorm';
 
@@ -12,7 +12,7 @@ export class UserEntityORM extends BaseOrmEntity {
   hashedPassword: string;
 
   @Column('text', { array: true })
-  roles: UserRole[];
+  roles: Role[];
 
   @Column({ default: true })
   isActive: boolean;
@@ -21,7 +21,7 @@ export class UserEntityORM extends BaseOrmEntity {
     username: string,
     hashedPassword: string,
     isActive: boolean = true,
-    roles: UserRole[] = ['user'],
+    roles: Role[] = [Role.User],
   ) {
     super();
     this.username = username;
@@ -34,7 +34,7 @@ export class UserEntityORM extends BaseOrmEntity {
     return new UserCredentialsVO(this.username, this.hashedPassword);
   }
 
-  public getRoles(): UserRole[] {
+  public getRoles(): Role[] {
     return this.roles;
   }
 
