@@ -1,18 +1,17 @@
 import { UserCredentialsVO } from '@transactions-api/auth/domain/value-objects/user-credentials.vo';
 import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
-
-export type UserRole = 'admin' | 'user';
+import { Role } from '@transactions-api/shared/domain/value-objects/roles.vo';
 
 export class UserEntity {
   private id: IdVO;
   private credentials: UserCredentialsVO;
   private isActive: boolean;
-  private roles: UserRole[];
+  private roles: Role[];
 
   constructor(
     id: IdVO,
     credentials: UserCredentialsVO,
-    roles: UserRole[] = ['user'],
+    roles: Role[] = [Role.User],
     isActive: boolean = true,
   ) {
     this.id = id;
@@ -33,18 +32,8 @@ export class UserEntity {
     return this.credentials.getUsername();
   }
 
-  getRoles(): UserRole[] {
+  getRoles(): Role[] {
     return this.roles;
-  }
-
-  addRole(role: UserRole): void {
-    if (!this.roles.includes(role)) {
-      this.roles.push(role);
-    }
-  }
-
-  removeRole(role: UserRole): void {
-    this.roles = this.roles.filter((r) => r !== role);
   }
 
   activate(): void {
@@ -59,7 +48,7 @@ export class UserEntity {
     return this.isActive;
   }
 
-  hasRole(role: UserRole): boolean {
+  hasRole(role: Role): boolean {
     return this.roles.includes(role);
   }
 }

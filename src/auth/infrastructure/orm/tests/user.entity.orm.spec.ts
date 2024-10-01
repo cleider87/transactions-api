@@ -1,4 +1,5 @@
 import { UserEntityORM } from '@transactions-api/auth/infrastructure/orm/user.entity.orm';
+import { Role } from '@transactions-api/shared/domain/value-objects/roles.vo';
 
 describe('UserEntityORM', () => {
   let userEntity: UserEntityORM;
@@ -8,7 +9,7 @@ describe('UserEntityORM', () => {
       'testUser',
       '$2b$10$q0jlp8mAY/qEbXo/ItKEi.FmETdKm0sQ/tVI/RUyXfi4x5SK.EbUW',
       true,
-      ['admin'],
+      [Role.Admin],
     );
   });
 

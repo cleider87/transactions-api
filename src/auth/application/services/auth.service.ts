@@ -19,6 +19,7 @@ import { UserEntity } from '@transactions-api/auth/domain/entities/user.entity';
 import { UserRepository } from '@transactions-api/auth/domain/repositories/user.repository';
 import { UserCredentialsVO } from '@transactions-api/auth/domain/value-objects/user-credentials.vo';
 import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
+import { Role } from '@transactions-api/shared/domain/value-objects/roles.vo';
 import { LoggingUtil } from '@transactions-api/shared/utils/logging.util';
 import * as bcrypt from 'bcrypt';
 
@@ -29,7 +30,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(registerInput: RegisterInput): Promise<RegisterOutput> {
+  async register(
+    registerInput: RegisterInput,
+    roles?: Role[],
+  ): Promise<RegisterOutput> {
     const { username, password } = registerInput;
     const existingUser = await this.userRepository.findByUsername(username);
     if (existingUser) {
@@ -42,6 +46,7 @@ export class AuthService {
     const newUser = new UserEntity(
       this.userRepository.generateId(),
       userCredentials,
+      roles,
     );
 
     await this.userRepository.save(newUser);
@@ -107,6 +112,10 @@ export class AuthService {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
     return user;
+  }
+
+  async findUserByUsername(username: string): Promise<UserEntity | undefined> {
+    return this.userRepository.findByUsername(username);
   }
 
   private async verifyPassword(
