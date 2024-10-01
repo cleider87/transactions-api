@@ -182,7 +182,7 @@ describe('TransactionController (e2e)', () => {
       .twice()
       .reply(200, { userId: 'adminUser', roles: ['admin'] });
     it('should reject a transaction', async () => {
-      await request(app.getHttpServer())
+      const transactionOutput = await request(app.getHttpServer())
         .post('/transactions/request')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
@@ -202,7 +202,7 @@ describe('TransactionController (e2e)', () => {
         .then((res) => res.body.accessToken);
 
       const response = await request(app.getHttpServer())
-        .put(`/transactions/${transactionId}/reject`)
+        .put(`/transactions/${transactionOutput.body.id}/reject`)
         .set('Authorization', `Bearer ${adminAccessToken}`)
         .send({ adminId: adminId.getValue() })
         .expect(200);
@@ -229,6 +229,38 @@ describe('TransactionController (e2e)', () => {
       expect(response.body).toHaveProperty('message');
       expect(response.body.message).toEqual(
         'Transaction with id 00000000-0000-0000-0000-000000000000 not found',
+      );
+    });
+
+    it('should fail to reject a transaction that was is already APPROVED', async () => {
+      await request(app.getHttpServer())
+        .post('/transactions/request')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          fromAccountId: fromAccountId.getValue(),
+          toAccountId: toAccountId.getValue(),
+          amount: 100.0,
+          description: 'Test Transaction',
+        });
+
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ username: 'adminUser', password: 'adminPassword' });
+
+      const adminAccessToken = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'adminUser', password: 'adminPassword' })
+        .then((res) => res.body.accessToken);
+
+      const response = await request(app.getHttpServer())
+        .put(`/transactions/${transactionId}/reject`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
+        .send({ adminId: adminId.getValue() })
+        .expect(409);
+
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toEqual(
+        `Transaction with id ${transactionId} is already APPROVED`,
       );
     });
   });

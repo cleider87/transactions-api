@@ -1,4 +1,4 @@
-import { ApproveTransactionInput } from '@transactions-api/transactions/application/dto/approve-transaction.dto';
+import { ApproveTransactionInput } from '@transactions-api/transactions/application/dto/approve-transaction-input.dto';
 import { validate } from 'class-validator';
 
 describe('ApproveTransactionInput', () => {

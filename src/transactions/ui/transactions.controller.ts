@@ -10,16 +10,24 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import {
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AmountVO } from '@transactions-api/shared/domain/value-objects/amount.vo';
 import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
 import { Role } from '@transactions-api/shared/domain/value-objects/roles.vo';
 import { AuthGuard } from '@transactions-api/shared/infrastructure/guards/auth.guard';
 import { Roles } from '@transactions-api/shared/infrastructure/guards/roles.guard';
-import { ApproveTransactionInput } from '@transactions-api/transactions/application/dto/approve-transaction.dto';
-import { RejectTransactionInput } from '@transactions-api/transactions/application/dto/reject-transaction.dto';
-import { TransactionRequestInput } from '@transactions-api/transactions/application/dto/transaction-request.dto';
 import { TransactionService } from '@transactions-api/transactions/application/services/transaction.service';
+import { ApproveTransactionInput } from '../application/dto/approve-transaction-input.dto';
+import { RejectTransactionInput } from '../application/dto/reject-transaction-input.dto';
+import { TransactionOutput } from '../application/dto/transaction-output.dto';
+import { TransactionRequestInput } from '../application/dto/transaction-request-input.dto';
 
+@ApiTags('Transactions')
 @Controller('transactions')
 @UseGuards(AuthGuard)
 export class TransactionsController {
@@ -29,9 +37,14 @@ export class TransactionsController {
   @Roles(Role.User)
   @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({
+    description: 'The transaction has been successfully created.',
+    type: TransactionOutput,
+  })
+  @ApiForbiddenResponse({ description: 'Forbidden.' })
   async requestTransaction(
     @Body() transactionRequestInput: TransactionRequestInput,
-  ) {
+  ): Promise<TransactionOutput> {
     const { amount, description, fromAccountId, toAccountId } =
       transactionRequestInput;
     return await this.transactionService.requestTransaction(
@@ -46,10 +59,15 @@ export class TransactionsController {
   @Roles(Role.Admin)
   @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'The transaction has been approved.',
+    type: TransactionOutput,
+  })
+  @ApiForbiddenResponse({ description: 'Forbidden.' })
   async approveTransaction(
     @Param('id') transactionId: string,
     @Body() approveTransactionInput: ApproveTransactionInput,
-  ) {
+  ): Promise<TransactionOutput> {
     return await this.transactionService.approveTransaction(
       new IdVO(transactionId),
       new IdVO(approveTransactionInput.adminId),
@@ -60,10 +78,15 @@ export class TransactionsController {
   @Roles(Role.Admin)
   @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'The transaction has been rejected.',
+    type: TransactionOutput,
+  })
+  @ApiForbiddenResponse({ description: 'Forbidden.' })
   async rejectTransaction(
     @Param('id') transactionId: string,
     @Body() rejectRequestInput: RejectTransactionInput,
-  ) {
+  ): Promise<TransactionOutput> {
     return await this.transactionService.rejectTransaction(
       new IdVO(transactionId),
       new IdVO(rejectRequestInput.adminId),

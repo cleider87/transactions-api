@@ -2,9 +2,9 @@ import { HttpModule } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AmountVO } from '@transactions-api/shared/domain/value-objects/amount.vo';
 import { IdVO } from '@transactions-api/shared/domain/value-objects/id.vo';
-import { ApproveTransactionInput } from '@transactions-api/transactions/application/dto/approve-transaction.dto';
-import { RejectTransactionInput } from '@transactions-api/transactions/application/dto/reject-transaction.dto';
-import { TransactionRequestInput } from '@transactions-api/transactions/application/dto/transaction-request.dto';
+import { ApproveTransactionInput } from '@transactions-api/transactions/application/dto/approve-transaction-input.dto';
+import { RejectTransactionInput } from '@transactions-api/transactions/application/dto/reject-transaction-input.dto';
+import { TransactionRequestInput } from '@transactions-api/transactions/application/dto/transaction-request-input.dto';
 import { TransactionService } from '@transactions-api/transactions/application/services/transaction.service';
 import { TransactionsController } from '@transactions-api/transactions/ui/transactions.controller';
 

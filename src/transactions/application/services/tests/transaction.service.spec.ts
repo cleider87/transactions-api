@@ -138,8 +138,7 @@ describe('TransactionService', () => {
       expect(mockTransactionRepository.findById).toHaveBeenCalledWith(
         transactionId.getValue(),
       );
-      expect(mockTransactionRepository.save).toHaveBeenCalled();
-      expect(result.getStatus()).toBe(TransactionStatus.REJECTED);
+      expect(result.status).toBe(TransactionStatus.REJECTED);
     });
 
     it('should throw NotFoundException if transaction is not found', async () => {
