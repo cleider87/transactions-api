@@ -33,7 +33,7 @@ export class AuthController {
   @ApiCreatedResponse({
     description: 'The user has been successfully created.',
     type: RegisterOutput,
-  })
+  }) // TODO: add auth guard to this endpoint
   async register(
     @Body() registerInput: RegisterInput,
   ): Promise<RegisterOutput> {
